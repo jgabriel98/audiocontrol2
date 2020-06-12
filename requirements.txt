@@ -2,6 +2,8 @@ pyalsaaudio
 musicbrainzngs
 expiringdict
 netifaces
+pylast
+OrderedDict
 git+https://github.com/hifiberry/usagecollector@master
 python-Levenshtein
 musicbrainzngs

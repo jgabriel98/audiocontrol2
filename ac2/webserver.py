@@ -193,7 +193,7 @@ class AudioControlWebserver(MetadataDisplay):
                 response.status = 401
                 return "invalid value {}".format(vol)
 
-            if vol[0] in ['+', '-']:
+            if isinstance(vol, str) and vol[0] in ['+', '-']:
                 self.volume_control.change_volume_percent(value)
             else:
                 self.volume_control.set_volume(value)

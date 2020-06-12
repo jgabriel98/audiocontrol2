@@ -27,6 +27,7 @@ initializes all subsystems and starts the required threads.
 Functionality is implemented in the ac2.* modules
 '''
 
+
 import signal
 import configparser
 import logging
@@ -34,20 +35,15 @@ import os
 import sys
 import threading
 from _collections import OrderedDict
-
 from usagecollector.client import report_activate
-
 from ac2.mpris import MPRISController
 import ac2.data.lastfm as lastfmdata
-
 from ac2.plugins.metadata.lastfm import LastFMScrobbler
 from ac2.webserver import AudioControlWebserver
 from ac2.alsavolume import ALSAVolume
 from ac2.metadata import Metadata
 import ac2.metadata
-
 from ac2 import watchdog
-
 mpris = MPRISController()
 startup_command = None
 
@@ -68,7 +64,7 @@ def print_state(signalNumber=None, frame=None):
         print("\n" + str(mpris))
 
 
-def create_object(classname, param = None):
+def create_object(classname, param=None):
     #    [module_name, class_name] = classname.rsplit(".", 1)
     #    module = __import__(module_name)
     #    my_class = getattr(module, class_name)
@@ -76,7 +72,7 @@ def create_object(classname, param = None):
     import importlib
     module_name, class_name = classname.rsplit(".", 1)
     MyClass = getattr(importlib.import_module(module_name), class_name)
-    
+
     if param is None:
         instance = MyClass()
     else:
@@ -163,11 +159,11 @@ def parse_config(debugmode=False):
             if not(anon):
                 try:
                     lastfmscrobbler = LastFMScrobbler(apikey,
-                                                  apisecret,
-                                                  username,
-                                                  password,
-                                                  None,
-                                                  network)
+                                                      apisecret,
+                                                      username,
+                                                      password,
+                                                      None,
+                                                      network)
 
                     mpris.register_metadata_display(lastfmscrobbler)
                     logging.info("scrobbling to %s as %s", network, username)
@@ -176,7 +172,7 @@ def parse_config(debugmode=False):
                     if server is not None:
                         server.add_lover(lastfmscrobbler)
                         Metadata.loveSupportedDefault = True
-                        
+
                     report_activate("audiocontrol_lastfm_scrobble")
 
                 except Exception as e:
@@ -219,18 +215,17 @@ def parse_config(debugmode=False):
             watchdog.add_monitored_thread(volume_control, "volume control")
 
         mpris.set_volume_control(volume_control)
-        
+
         report_activate("audiocontrol_volume")
 
     if volume_control is None:
         logging.info("volume control not configured, "
                      "disabling volume control support")
 
-           
     # Additional controller modules
     for section in config.sections():
         if section.startswith("controller:"):
-            [_,classname] = section.split(":",1)
+            [_, classname] = section.split(":", 1)
             try:
                 params = config[section]
                 controller = create_object(classname, params)
@@ -243,11 +238,11 @@ def parse_config(debugmode=False):
                 logging.error("Exception during controller %s initialization",
                               classname)
                 logging.exception(e)
-                
+
     #  Additional metadata modules
     for section in config.sections():
         if section.startswith("metadata:"):
-            [_,classname] = section.split(":",1)
+            [_, classname] = section.split(":", 1)
             try:
                 params = config[section]
                 mddisplay = create_object(classname, params)
@@ -301,7 +296,6 @@ def parse_config(debugmode=False):
         except Exception as e:
             logging.error("can't activate volume_post: %s", e)
 
-
     # Other settings
     if "privacy" in config.sections():
         extmd = config.getboolean("privacy",
@@ -332,12 +326,13 @@ def main():
 
     if len(sys.argv) > 1:
         if "-v" in sys.argv:
-            logging.basicConfig(format='%(levelname)s: %(module)s - %(message)s',
-                                level=logging.DEBUG)
+            logging.basicConfig(
+                format='%(levelname)s: %(module)s - %(message)s')
+            logging.root.setLevel(logging.DEBUG)
             logging.debug("enabled verbose logging")
     else:
-        logging.basicConfig(format='%(levelname)s: %(module)s - %(message)s',
-                            level=logging.INFO)
+        logging.basicConfig(format='%(levelname)s: %(module)s - %(message)s')
+        logging.root.setLevel(logging.INFO)
 
     if ('DEBUG' in os.environ):
         logging.warning("starting in debug mode...")
@@ -359,7 +354,7 @@ def main():
     if startup_command is not None:
         os.system(startup_command)
 
-    # mpris.print_players()
+    mpris.print_players()
     try:
         mpris.main_loop()
     except Exception as e:
